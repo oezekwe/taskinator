@@ -230,9 +230,55 @@ var saveTasks= function(){
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+var loadTasks= function(){
+    // Gets task items from localStorage
+    tasks = localStorage.getItem("tasks");
+    //console.log(tasks);
+
+    // Converts tasks from the stringified format back into an array of objects
+    if(tasks === null){
+        tasks[null];
+        return false;
+    }
+    tasks= JSON.parse(tasks);
+    //console.log(tasks);
+
+    // Iterates through tasks array and creates task elements on the page from it
+    for(let i = 0; i < tasks.length; i++){
+        tasks[i].id= taskIdCounter;
+        //console.log(tasks[i]);
+        var listItemEl= document.createElement("li");
+        listItemEl.className= "task-item";
+        listItemEl.setAttribute("data-task-id", tasks[i].id);
+        listItemEl.setAttribute("draggable", true);
+        var taskInfoEl= document.createElement("div");
+        taskInfoEl.className= "task-info";
+        taskInfoEl.innerHTML= "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
+        listItemEl.appendChild(taskInfoEl);
+        var taskActionsEl= createTaskActions(tasks[i].id);
+        listItemEl.appendChild(taskActionsEl);
+        //console.log(listItemEl);
+        if(tasks[i].status === "to do"){
+            listItemEl.querySelector("select[name='status-change']").selectedIndex= 0;
+            listItemEl.appendChild(tasksToDoEl);
+        }
+        else if(tasks[i].status === "in progress"){
+            listItemEl.querySelector("select[name='status-change']").selectedIndex= 1;
+            listItemEl.appendChild(tasksInProgressEl);
+        }
+        else if(tasks[i].status === "complete"){
+            listItemEl.querySelector("select[name='status-change']").selectedIndex= 2;
+            listItemEl.appendChild(tasksCompletedEl);
+        }
+        taskIdCounter++;
+        console.log(listItemEl);
+    }
+}
+
 formEl.addEventListener("submit", taskFormHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
 pageContentEl.addEventListener("dragstart", dragTaskHandler);
 pageContentEl.addEventListener("dragover", dropZoneDragHandler);
 pageContentEl.addEventListener("drop", dropTaskHandler);
 pageContentEl.addEventListener("dragleave", dragLeaveHandler);
+loadTasks();
